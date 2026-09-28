@@ -1,1 +1,1 @@
-# tableau-advanced-table-viz-extension
+# tableau-extension-advanced-table

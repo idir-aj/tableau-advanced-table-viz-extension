@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Table Viz Extension</title>
+  <script src="/tableau.extensions.1.latest.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="config-toolbar" aria-label="Configuration tools">
+      <button
+        id="config-toggle-btn"
+        class="config-gear-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="config-panel-container"
+        aria-label="Open configuration"
+        title="Configuration"
+      >
+        ⚙
+      </button>
+    </div>
+    <div id="config-panel-container" class="config-panel-collapsed"></div>
+    <div id="custom-table-container"></div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

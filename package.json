@@ -1,0 +1,22 @@
+{
+  "name": "extension-advanced-table",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "d3": "^7.9.0"
+  },
+  "devDependencies": {
+    "@tableau/extensions-api-types": "^1.11.0",
+    "@types/d3": "^7.4.3",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.0",
+    "vitest": "^4.1.11"
+  }
+}
