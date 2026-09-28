@@ -4,10 +4,10 @@
     <default-locale>en_US</default-locale>
     <name resource-id="name"/>
     <description resource-id="description"/>
-    <author name="Decathlon" email="idir.saidani@decathlon.com" organization="Decathlon" website="https://decathlon.com"/>
+    <author name="xxxx" email="xx.xxx@xxx.com" organization="xxx" website="https://xxx.com"/>
     <min-api-version>1.11</min-api-version>
     <source-location>
-      <url>https://advanced-table-3qg6w7sioa-ez.a.run.app/index.html</url>
+      <url>https://idir-aj.github.io/tableau-advanced-table-viz-extension/index.html</url>
     </source-location>
     <icon></icon>
     <permissions>
@@ -16,7 +16,7 @@
   </worksheet-extension>
   <resources>
     <resource id="name">
-      <text locale="en_US">Dkt Table Extension</text>
+      <text locale="en_US">Table Extension</text>
     </resource>
     <resource id="description">
       <text locale="en_US">Custom table with foldable hierarchy, bars, and D3 sparklines.</text>
