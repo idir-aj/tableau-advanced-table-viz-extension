@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Table Viz Extension</title>
+  <script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.min.js"></script>
+  <script type="module" crossorigin src="/assets/index-DcE8ueai.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-TG4QAXab.css">
+</head>
+<body>
+  <div id="app">
+    <div class="viz-toolbar" role="toolbar" aria-label="Visualization tools">
+      <button id="viz-export-btn" class="viz-toolbar-button" type="button" disabled>
+        <span aria-hidden="true">⇩</span>
+        <span>Export</span>
+      </button>
+      <div class="viz-toolbar-actions">
+      <button
+        id="config-toggle-btn"
+        class="viz-toolbar-button viz-toolbar-config"
+        type="button"
+        aria-expanded="false"
+        aria-pressed="false"
+        aria-controls="config-panel-container"
+      >
+        <span aria-hidden="true">⚙</span>
+        <span>Configure columns</span>
+      </button>
+      </div>
+    </div>
+    <div id="config-panel-container" class="config-panel-collapsed"></div>
+    <div id="custom-table-container"></div>
+  </div>
+</body>
+</html>
