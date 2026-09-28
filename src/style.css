@@ -38,37 +38,39 @@ body {
   width: 100%;
 }
 
-.config-toolbar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 20;
+.viz-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 5px 0;
+  border-bottom: 1px solid #dfe3e8;
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
 }
 
-.config-gear-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 0;
-  border: 1px solid var(--line);
-  background: #ffffff;
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1;
+.viz-toolbar-actions { display: flex; align-items: center; gap: 8px; }
+
+.viz-toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid #d9dde2;
+  border-radius: 4px;
+  background: #fff;
+  color: #3d4550;
+  font: 500 13px/1.2 'IBM Plex Sans', 'Segoe UI', sans-serif;
   cursor: pointer;
-  box-shadow: none;
-  transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease;
 }
 
-.config-gear-btn:hover {
-  background: #f8fafc;
-  border-color: var(--line-strong);
-  color: #334155;
-}
-
-.config-gear-btn:focus-visible {
-  outline: 2px solid rgba(29, 78, 216, 0.4);
-  outline-offset: 2px;
-}
+.viz-toolbar-button:hover { background: #f4f6f8; border-color: #c9cfd6; }
+.viz-toolbar-button:disabled { opacity: .45; cursor: not-allowed; }
+.viz-toolbar-button:disabled:hover { background: #fff; border-color: #d9dde2; }
+.viz-toolbar-button:focus-visible { outline: 2px solid rgba(14, 122, 104, .35); outline-offset: 2px; }
+.viz-toolbar-button.is-active { color: #0e7a68; background: #e3f2ef; border-color: #0e7a68; }
 
 .config-panel-collapsed {
   display: none;
@@ -76,7 +78,7 @@ body {
 
 #config-panel-container:not(.config-panel-collapsed) {
   position: absolute;
-  top: 52px;
+  top: 58px;
   right: 0;
   z-index: 15;
   width: min(1280px, calc(100vw - 24px));
@@ -349,7 +351,7 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 680px;
-  border: 1px solid var(--line);
+  border: 1px solid #d9dde2;
   border-radius: 0;
   overflow: hidden;
   background: var(--surface);
@@ -400,15 +402,16 @@ body {
 }
 
 .table-row.header {
-  background: #ffffff;
+  background: #f4f5f7;
   font-weight: 600;
-  color: #516079;
+  color: #3d4550;
   font-size: 13px;
+  min-height: 40px;
   border-top: none;
 }
 
 .cell {
-  padding: 7px 12px;
+  padding: 7px 10px;
   font-size: 13px;
   display: flex;
   align-items: center;
@@ -417,10 +420,60 @@ body {
 .header-cell-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
-  gap: 8px;
+  gap: 6px;
 }
+
+.column-drag-handle {
+  flex: 0 0 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8a929c;
+  font-size: 15px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+}
+.column-drag-handle:active { cursor: grabbing; }
+.column-drag-handle:focus-visible { outline: 2px solid #0e7a68; outline-offset: 2px; }
+
+.column-name-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.column-name-button:disabled { cursor: default; }
+.column-name-button:not(:disabled):hover { color: #0e7a68; }
+.column-name-button:focus-visible { outline: 2px solid rgba(14, 122, 104, .35); outline-offset: 2px; }
+.sort-icon { flex: 0 0 auto; color: #b8bec6; font-size: 12px; transition: transform 120ms ease, color 120ms ease; }
+.sort-icon.is-active { color: #0e7a68; }
+.sort-icon.is-desc { transform: rotate(180deg); }
+
+.column-filter-toggle {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #8a929c;
+  cursor: pointer;
+}
+.column-filter-toggle:hover, .column-filter-toggle.is-active { color: #0e7a68; background: #e3f2ef; }
+.column-filter-toggle:focus-visible { outline: 2px solid rgba(14, 122, 104, .35); outline-offset: 1px; }
 
 .header-label {
   overflow: hidden;
@@ -452,14 +505,19 @@ body {
 .table-row.filters {
   background-color: #fff;
   border-top: none;
-  border-bottom: 1px solid #dde7f5;
-  min-height: 50px;
+  border-bottom: 1px solid #d9dde2;
+  min-height: 0;
+  align-items: stretch;
 }
+.table-row.filters[hidden] { display: none; }
+.filter-cell.is-closed { visibility: hidden; }
 
 .filter-cell {
   flex-direction: column;
   align-items: stretch;
-  gap: 6px;
+  gap: 7px;
+  padding: 10px;
+  border-right: 1px solid #eef0f3;
 }
 
 .filter-range-inputs {
@@ -480,17 +538,17 @@ body {
 
 .filter-range-track {
   position: relative;
-  height: 12px;
+  height: 6px;
   border-radius: 0;
-  background: #eceff3;
-  margin: 2px 2px 0;
+  background: #e6e9ed;
+  margin: 6px 2px 3px;
 }
 
 .filter-range-fill {
   position: absolute;
   top: 0;
   bottom: 0;
-  background: #9ca3af;
+  background: #0e7a68;
   border-radius: 0;
 }
 
@@ -498,10 +556,10 @@ body {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  border-radius: 0;
-  border: 1px solid #6b7280;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid #0e7a68;
   background: #fff;
   cursor: grab;
   box-shadow: none;
@@ -510,6 +568,8 @@ body {
 .filter-range-thumb:active {
   cursor: grabbing;
 }
+
+.filter-range-labels { display: flex; justify-content: space-between; gap: 8px; color: #737c87; font-size: 10px; }
 
 .filter-range-thumb:focus-visible {
   outline: 2px solid rgba(107, 114, 128, 0.35);
@@ -645,9 +705,7 @@ body {
     padding: 12px;
   }
 
-  .config-toolbar {
-    right: 2px;
-  }
+  .viz-toolbar { align-items: flex-start; }
 
   #config-panel-container:not(.config-panel-collapsed) {
     width: calc(100vw - 20px);
@@ -1510,3 +1568,5 @@ body {
     display: none;
   }
 }
+.cell-hierarchy > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.table-row:not(.header) .cell-hierarchy { min-height: 40px; }

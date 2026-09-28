@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Viz — toolbar and header reference</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="viz-header.css">
+</head>
+<body>
+
+<div class="viz">
+
+  <!-- ============ TOOLBAR ============ -->
+  <div class="toolbar">
+    <button class="btn-export">
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#3D4550" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1.5v8M4 6.7l3 3 3-3M2 11.5h10"/></svg>
+      <span>Export</span>
+    </button>
+
+    <div class="toolbar-right">
+      <span class="mode-help" id="modeHelp" hidden>Editing — only visible to you</span>
+      <button class="btn-configure" id="btnConfigure" aria-pressed="false">
+        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 1.8h2.8l.4 1.7c.4.15.8.35 1.15.6l1.7-.6 1.4 2.4-1.3 1.15c.05.25.05.5 0 .8l1.3 1.15-1.4 2.4-1.7-.6c-.35.25-.75.45-1.15.6l-.4 1.7H6.6l-.4-1.7a4.5 4.5 0 0 1-1.15-.6l-1.7.6-1.4-2.4 1.3-1.15a3.6 3.6 0 0 1 0-.8L1.95 5.9l1.4-2.4 1.7.6c.35-.25.75-.45 1.15-.6z"/><circle cx="8" cy="8" r="1.8"/></svg>
+        <span>Configure columns</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ TABLE ============ -->
+  <div class="table-scroll">
+    <div class="grid" id="grid" style="grid-template-columns: 300px 260px 220px 240px">
+
+      <!-- Column 1: Sport hierarchy (text filter, no sort has just been triggered) -->
+      <div class="col-header" data-col="0">
+        <div class="col-header-row">
+          <span class="drag-handle" draggable="true" aria-label="Reorder Sport hierarchy">⠿</span>
+          <button class="col-name-btn">
+            <span class="col-name">Sport hierarchy</span>
+            <svg class="sort-icon" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#B8BEC6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5v7M3 6.7L6 9.5l3-2.8"/></svg>
+          </button>
+        </div>
+        <div class="resize-handle" aria-hidden="true"></div>
+      </div>
+
+      <!-- Column 2: Non-quality cost (range filter open, demonstrates the slider) -->
+      <div class="col-header" data-col="1">
+        <div class="col-header-row">
+          <span class="drag-handle" draggable="true" aria-label="Reorder Non-quality cost">⠿</span>
+          <button class="col-name-btn">
+            <span class="col-name">Non-quality cost</span>
+            <svg class="sort-icon is-active" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#0E7A68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5v7M3 6.7L6 9.5l3-2.8"/></svg>
+          </button>
+          <button class="filter-btn is-active" aria-label="Hide filter for Non-quality cost" aria-pressed="true">
+            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#0E7A68" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 2h11l-4 5v4l-3 1.5V7z"/></svg>
+          </button>
+        </div>
+        <div class="filter-panel">
+          <div class="range-inputs">
+            <input type="number" class="range-min-input" value="0" aria-label="Minimum Non-quality cost">
+            <span class="range-sep">–</span>
+            <input type="number" class="range-max-input" value="15305886" aria-label="Maximum Non-quality cost">
+          </div>
+          <div class="range-dual">
+            <div class="range-track"></div>
+            <div class="range-fill" style="left: 0%; width: 100%"></div>
+            <input type="range" min="0" max="15305886" value="0" aria-label="Minimum Non-quality cost">
+            <input type="range" min="0" max="15305886" value="15305886" aria-label="Maximum Non-quality cost">
+          </div>
+          <div class="range-labels"><span>0 €</span><span>15,3 M€</span></div>
+        </div>
+        <div class="resize-handle" aria-hidden="true"></div>
+      </div>
+
+      <!-- Column 3: 12-month trend (no filter icon — not filterable) -->
+      <div class="col-header" data-col="2">
+        <div class="col-header-row">
+          <span class="drag-handle" draggable="true" aria-label="Reorder 12-month trend">⠿</span>
+          <button class="col-name-btn">
+            <span class="col-name">12-month trend</span>
+            <svg class="sort-icon" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#B8BEC6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5v7M3 6.7L6 9.5l3-2.8"/></svg>
+          </button>
+        </div>
+        <div class="resize-handle" aria-hidden="true"></div>
+      </div>
+
+      <!-- Column 4: Returned quantity (range filter, closed) -->
+      <div class="col-header" data-col="3">
+        <div class="col-header-row">
+          <span class="drag-handle" draggable="true" aria-label="Reorder Returned quantity">⠿</span>
+          <button class="col-name-btn">
+            <span class="col-name">Returned quantity</span>
+            <svg class="sort-icon" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#B8BEC6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5v7M3 6.7L6 9.5l3-2.8"/></svg>
+          </button>
+          <button class="filter-btn" aria-label="Filter Returned quantity" aria-pressed="false">
+            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#8A929C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 2h11l-4 5v4l-3 1.5V7z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Rows -->
+      <div class="row" style="grid-template-columns: subgrid">
+        <div class="cell cell-hierarchy" style="padding-left: 14px"><span class="caret">▾</span><span class="label label-l1">2 CYCLING SPORTS</span></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 100%; background: #3643BA"></div></div><span class="cell-val">15,3 M€</span><span class="badge badge-good">▼ −1,8 M€</span></div>
+        <div class="cell cell-trend"><svg width="180" height="28" viewBox="0 0 180 28" aria-hidden="true"><polyline points="4,10 26,16 48,8 70,18 92,12 114,20 136,10 158,16 176,12" fill="none" stroke="#C9CFD6" stroke-width="1.3"/><polyline points="4,12 26,8 48,18 70,10 92,20 114,8 136,16 158,10 176,14" fill="none" stroke="#3643BA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="176" cy="14" r="2.5" fill="#3643BA"/></svg></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 100%; background: #0E7A68"></div></div><span class="cell-val">351 K</span></div>
+      </div>
+      <div class="row" style="grid-template-columns: subgrid">
+        <div class="cell cell-hierarchy" style="padding-left: 32px"><span class="caret">▸</span><span class="label">170 BIKE MTB / TREKKING</span></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 45%; background: #3643BA"></div></div><span class="cell-val">6,9 M€</span><span class="badge badge-good">▼ −1,2 M€</span></div>
+        <div class="cell cell-trend"><svg width="180" height="28" viewBox="0 0 180 28" aria-hidden="true"><polyline points="4,14 26,10 48,16 70,8 92,18 114,12 136,20 158,8 176,10" fill="none" stroke="#C9CFD6" stroke-width="1.3"/><polyline points="4,8 26,18 48,10 70,20 92,12 114,16 136,10 158,18 176,8" fill="none" stroke="#3643BA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="176" cy="8" r="2.5" fill="#3643BA"/></svg></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 34%; background: #0E7A68"></div></div><span class="cell-val">119 K</span></div>
+      </div>
+      <div class="row" style="grid-template-columns: subgrid">
+        <div class="cell cell-hierarchy" style="padding-left: 32px"><span class="caret">▸</span><span class="label">133 URBAN MOBILITY</span></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 35%; background: #3643BA"></div></div><span class="cell-val">5,4 M€</span><span class="badge badge-good">▼ −1,0 M€</span></div>
+        <div class="cell cell-trend"><svg width="180" height="28" viewBox="0 0 180 28" aria-hidden="true"><polyline points="4,16 26,12 48,20 70,10 92,14 114,18 136,8 158,12 176,16" fill="none" stroke="#C9CFD6" stroke-width="1.3"/><polyline points="4,10 26,20 48,12 70,16 92,8 114,18 136,14 158,10 176,12" fill="none" stroke="#3643BA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="176" cy="12" r="2.5" fill="#3643BA"/></svg></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 31%; background: #0E7A68"></div></div><span class="cell-val">108 K</span></div>
+      </div>
+      <div class="row" style="grid-template-columns: subgrid">
+        <div class="cell cell-hierarchy" style="padding-left: 32px"><span class="caret">▸</span><span class="label">165 ROAD/GRAVEL/TRIATHLON CYCLING</span></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 14%; background: #3643BA"></div></div><span class="cell-val">2,1 M€</span><span class="badge badge-bad">▲ +218,0 K€</span></div>
+        <div class="cell cell-trend"><svg width="180" height="28" viewBox="0 0 180 28" aria-hidden="true"><polyline points="4,12 26,18 48,14 70,20 92,8 114,16 136,10 158,20 176,14" fill="none" stroke="#C9CFD6" stroke-width="1.3"/><polyline points="4,18 26,10 48,20 70,12 92,16 114,8 136,18 158,12 176,16" fill="none" stroke="#3643BA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="176" cy="16" r="2.5" fill="#3643BA"/></svg></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 16%; background: #0E7A68"></div></div><span class="cell-val">56 K</span></div>
+      </div>
+      <div class="row" style="grid-template-columns: subgrid">
+        <div class="cell cell-hierarchy" style="padding-left: 32px"><span class="caret">▸</span><span class="label">164 KID CYCLING</span></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 5%; background: #3643BA"></div></div><span class="cell-val">812,9 K€</span><span class="badge badge-bad">▲ +111,0 K€</span></div>
+        <div class="cell cell-trend"><svg width="180" height="28" viewBox="0 0 180 28" aria-hidden="true"><polyline points="4,20 26,14 48,18 70,10 92,16 114,20 136,8 158,14 176,10" fill="none" stroke="#C9CFD6" stroke-width="1.3"/><polyline points="4,14 26,20 48,10 70,18 92,12 114,8 136,16 158,20 176,10" fill="none" stroke="#3643BA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="176" cy="10" r="2.5" fill="#3643BA"/></svg></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 14%; background: #0E7A68"></div></div><span class="cell-val">51 K</span></div>
+      </div>
+      <div class="row" style="grid-template-columns: subgrid">
+        <div class="cell cell-hierarchy" style="padding-left: 32px"><span class="caret">▸</span><span class="label">505 MAINTENANCE/REPAIR</span></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 2%; background: #3643BA"></div></div><span class="cell-val">135,6 K€</span><span class="badge badge-good">▼ −5,5 K€</span></div>
+        <div class="cell cell-trend"><svg width="180" height="28" viewBox="0 0 180 28" aria-hidden="true"><polyline points="4,10 26,16 48,20 70,14 92,8 114,18 136,12 158,16 176,20" fill="none" stroke="#C9CFD6" stroke-width="1.3"/><polyline points="4,16 26,10 48,14 70,20 92,18 114,12 136,8 158,16 176,20" fill="none" stroke="#3643BA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="176" cy="20" r="2.5" fill="#3643BA"/></svg></div>
+        <div class="cell cell-bar"><div class="mini-bar"><div class="mini-bar-fill" style="width: 5%; background: #0E7A68"></div></div><span class="cell-val">18 K</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="viz-header.js"></script>
+</body>
+</html>

@@ -17,9 +17,12 @@ import { renderConfigPanel } from './components/configPanel';
 import { getDefaultColumnSettings, saveColumnSettingsToTableau } from './data/columnSettings';
 import { createAppState } from './state/appState';
 import { hasDataStructureChanged } from './utils/dataStructure';
+import { exportToExcel } from './utils/exportExcel';
 
 const appState = createAppState();
 const unregisterHandlers: Array<() => boolean> = [];
+let currentExportRows: any[] = [];
+let currentExportColumns: ReturnType<typeof getDefaultColumnSettings> = [];
 let persistColumnWidthsTimeout: ReturnType<typeof setTimeout> | null = null;
 let worksheetRefreshTimeout: ReturnType<typeof setTimeout> | null = null;
 let isWorksheetRefreshRunning = false;
@@ -54,6 +57,8 @@ function setupConfigPanelToggle(): void {
   const setPanelVisibility = (isOpen: boolean): void => {
     panel.classList.toggle('config-panel-collapsed', !isOpen);
     toggleButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    toggleButton.setAttribute('aria-pressed', isOpen ? 'true' : 'false');
+    toggleButton.classList.toggle('is-active', isOpen);
     toggleButton.setAttribute(
       'aria-label',
       isOpen ? 'Close configuration' : 'Open configuration'
@@ -65,6 +70,12 @@ function setupConfigPanelToggle(): void {
   toggleButton.addEventListener('click', () => {
     const isOpen = toggleButton.getAttribute('aria-expanded') === 'true';
     setPanelVisibility(!isOpen);
+  });
+
+  const exportButton = document.getElementById('viz-export-btn');
+  exportButton?.addEventListener('click', () => {
+    if (currentExportColumns.length === 0) return;
+    exportToExcel(currentExportRows, currentExportColumns, `Export_${new Date().toISOString().slice(0, 10)}.csv`);
   });
 }
 
@@ -306,9 +317,25 @@ async function renderExtension(options?: RenderExtensionOptions): Promise<void> 
   const renderCurrentTable = (): void => {
     renderTable('custom-table-container', appState.latestData, appState.columns, {
       tableauWorksheet: getActiveWorksheet(),
+      openColumnFilterIds: appState.openColumnFilterIds,
+      onOpenColumnFilterIdsChange: (openColumnFilterIds) => {
+        appState.openColumnFilterIds = openColumnFilterIds;
+        renderCurrentTable();
+      },
+      onExportDataChange: (rows, columns) => {
+        currentExportRows = rows;
+        currentExportColumns = columns;
+        const exportButton = document.getElementById('viz-export-btn') as HTMLButtonElement | null;
+        if (exportButton) exportButton.disabled = columns.length === 0;
+      },
       onColumnsReordered: (columns) => {
         appState.columns = columns.map((column) => ({ ...column }));
         void renderExtension({ preserveCurrentConfig: true });
+        if (window.tableau?.extensions?.settings) {
+          void saveColumnSettingsToTableau(appState.columns).catch(() => {
+            console.warn('Unable to save reordered Tableau columns.');
+          });
+        }
       },
       columnWidths: appState.columnWidths,
       onColumnWidthsChange: (columnWidths) => {
@@ -378,6 +405,7 @@ async function renderExtension(options?: RenderExtensionOptions): Promise<void> 
       appState.columns = getDefaultColumnSettings();
       appState.columnWidths = {};
       appState.columnFilters = {};
+      appState.openColumnFilterIds = new Set<string>();
       appState.sortState = null;
       appState.latestData = await fetchWithProgress(false);
       renderCurrentTable();

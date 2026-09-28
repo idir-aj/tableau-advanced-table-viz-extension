@@ -8,18 +8,24 @@
 </head>
 <body>
   <div id="app">
-    <div class="config-toolbar" aria-label="Configuration tools">
+    <div class="viz-toolbar" role="toolbar" aria-label="Visualization tools">
+      <button id="viz-export-btn" class="viz-toolbar-button" type="button" disabled>
+        <span aria-hidden="true">⇩</span>
+        <span>Export</span>
+      </button>
+      <div class="viz-toolbar-actions">
       <button
         id="config-toggle-btn"
-        class="config-gear-btn"
+        class="viz-toolbar-button viz-toolbar-config"
         type="button"
         aria-expanded="false"
+        aria-pressed="false"
         aria-controls="config-panel-container"
-        aria-label="Open configuration"
-        title="Configuration"
       >
-        ⚙
+        <span aria-hidden="true">⚙</span>
+        <span>Configure columns</span>
       </button>
+      </div>
     </div>
     <div id="config-panel-container" class="config-panel-collapsed"></div>
     <div id="custom-table-container"></div>

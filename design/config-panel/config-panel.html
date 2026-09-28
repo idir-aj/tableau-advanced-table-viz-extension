@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Column configuration — design reference</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="config-panel.css">
+</head>
+<body>
+
+<div class="panel">
+
+  <header class="topbar">
+    <div class="topbar-titles">
+      <h1>Column configuration</h1>
+      <div class="subtitle">Non-quality cost by sport · 5 columns · synced with Tableau encodings</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="dirty-flag" id="dirtyFlag" hidden>
+        <span class="dirty-dot"></span>Unsaved changes
+      </span>
+      <button class="btn btn-ghost" id="btnReset">Reset to defaults</button>
+      <button class="btn btn-outline" id="btnCancel">Cancel</button>
+      <button class="btn btn-primary" id="btnSave">Save</button>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- ============ LEFT: column list ============ -->
+    <nav class="sidebar" aria-label="Columns">
+      <div class="sidebar-head">
+        <h2>Columns</h2>
+        <span class="muted">5</span>
+      </div>
+      <p class="hint">Drag to reorder. Top to bottom = left to right in the table.</p>
+
+      <ul class="col-list" id="colList">
+        <li class="col-row" data-col="0">
+          <button class="col-row-btn">
+            <span class="drag-handle" aria-hidden="true">⠿</span>
+            <span class="col-row-text">
+              <span class="col-row-name">Sport hierarchy</span>
+              <span class="col-row-sub">sport_universe › sport_department › sport_family</span>
+            </span>
+            <span class="type-pill">Hierarchy</span>
+          </button>
+          <button class="row-more" aria-label="More actions for Sport hierarchy">⋮</button>
+        </li>
+
+        <li class="col-row selected" data-col="1">
+          <button class="col-row-btn">
+            <span class="drag-handle" aria-hidden="true">⠿</span>
+            <span class="col-row-text">
+              <span class="col-row-name">Non-quality cost</span>
+              <span class="col-row-sub">SUM(non_quality_cost_n_0)</span>
+            </span>
+            <span class="type-pill">Bar</span>
+          </button>
+          <button class="row-more" aria-label="More actions for Non-quality cost">⋮</button>
+        </li>
+
+        <li class="col-row" data-col="2">
+          <button class="col-row-btn">
+            <span class="drag-handle" aria-hidden="true">⠿</span>
+            <span class="col-row-text">
+              <span class="col-row-name">Returned quantity</span>
+              <span class="col-row-sub">SUM(qty_returned_1stlife_n_0)</span>
+            </span>
+            <span class="type-pill">Bar</span>
+          </button>
+          <button class="row-more" aria-label="More actions for Returned quantity">⋮</button>
+        </li>
+
+        <li class="col-row" data-col="3">
+          <button class="col-row-btn">
+            <span class="drag-handle" aria-hidden="true">⠿</span>
+            <span class="col-row-text">
+              <span class="col-row-name">12-month trend</span>
+              <span class="col-row-sub">SUM(non_quality_cost_n_0) by month</span>
+            </span>
+            <span class="type-pill">Trend</span>
+          </button>
+          <button class="row-more" aria-label="More actions for 12-month trend">⋮</button>
+        </li>
+
+        <li class="col-row" data-col="4">
+          <button class="col-row-btn">
+            <span class="drag-handle" aria-hidden="true">⠿</span>
+            <span class="col-row-text">
+              <span class="col-row-name">Non-quality cost vs N-1</span>
+              <span class="col-row-sub">SUM(non_quality_cost_n_0)</span>
+            </span>
+            <span class="type-pill">Text</span>
+          </button>
+          <button class="row-more" aria-label="More actions for Non-quality cost vs N-1">⋮</button>
+        </li>
+      </ul>
+
+      <button class="btn btn-dashed" id="btnAddColumn">
+        <span class="icon-plus" aria-hidden="true"></span> Add column
+      </button>
+    </nav>
+
+    <!-- ============ CENTER: detail form ============ -->
+    <main class="detail">
+      <div class="detail-heading">
+        <span class="eyebrow">Column 2 of 5</span>
+        <h2>Non-quality cost</h2>
+      </div>
+
+      <!-- Header + type -->
+      <section class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label for="hdr">Header</label>
+            <input id="hdr" type="text" value="Non-quality cost">
+            <span class="field-help">Defaults to the field name.</span>
+          </div>
+          <div class="field">
+            <span class="field-label" id="typeLbl">Type</span>
+            <div class="segmented" role="group" aria-labelledby="typeLbl" id="typeSeg">
+              <button class="seg-btn" data-value="Text">Text</button>
+              <button class="seg-btn is-active" data-value="Hierarchy">Bar</button>
+              <button class="seg-btn" data-value="Bar">Hierarchy</button>
+              <button class="seg-btn" data-value="Trend">Trend</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Value -->
+      <section class="card">
+        <h3>Value</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label for="valueField">Value field</label>
+            <select id="valueField">
+              <option selected>SUM(non_quality_cost_n_0)</option>
+              <option>SUM(non_quality_cost_n_1)</option>
+              <option>SUM(qty_returned_1stlife_n_0)</option>
+              <option>SUM(qty_returned_1stlife_n_1)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2 opts-row">
+          <div class="field">
+            <span class="field-label" id="colorLbl">Bar color</span>
+            <div class="swatches" role="group" aria-labelledby="colorLbl">
+              <button class="swatch is-active" style="background:#0E7A68" aria-label="Teal (selected)"></button>
+              <button class="swatch" style="background:#3643BA" aria-label="Blue"></button>
+              <button class="swatch" style="background:#C26A00" aria-label="Orange"></button>
+              <button class="swatch" style="background:#5B6470" aria-label="Grey"></button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label" id="scaleLbl">Bar scale</span>
+            <div class="segmented" role="group" aria-labelledby="scaleLbl">
+              <button class="seg-btn is-active">Per level</button>
+              <button class="seg-btn">Relative to parent</button>
+              <button class="seg-btn">Whole table</button>
+            </div>
+            <span class="field-help">Bars compare rows of the same level, so deep levels stay readable.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Number format (collapsible) -->
+      <section class="card">
+        <button class="card-toggle" aria-expanded="true" data-target="fmtBody">
+          <span class="card-toggle-title">Number format</span>
+          <span class="card-toggle-summary">Currency € · 1 dec. · Auto (K/M)
+            <svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#545D69" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"/></svg>
+          </span>
+        </button>
+        <div class="card-body" id="fmtBody">
+          <div class="grid-4">
+            <div class="field">
+              <label for="fmt">Format</label>
+              <select id="fmt"><option>Number</option><option selected>Currency</option></select>
+            </div>
+            <div class="field">
+              <label for="dec">Decimals</label>
+              <input id="dec" type="number" min="0" max="3" value="1">
+            </div>
+            <div class="field">
+              <label for="cur">Currency</label>
+              <select id="cur"><option selected>EUR (€)</option><option>USD ($)</option><option>GBP (£)</option></select>
+            </div>
+            <div class="field">
+              <label for="scl">Scale</label>
+              <select id="scl"><option selected>Auto (K/M)</option><option>Thousands (K)</option><option>None</option></select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Secondary metric (collapsible) -->
+      <section class="card">
+        <button class="card-toggle" aria-expanded="true" data-target="secBody">
+          <span class="card-toggle-title">Secondary metric · variation vs N-1</span>
+          <span class="card-toggle-summary">Absolute variance · custom formula · increase = bad
+            <svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#545D69" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"/></svg>
+          </span>
+        </button>
+
+        <div class="card-body" id="secBody">
+          <div class="switch-row">
+            <div class="switch-labels">
+              <span class="field-label" id="secLbl">Show variation badge</span>
+              <span class="field-help">Displayed next to the main value.</span>
+            </div>
+            <button class="switch is-on" id="secSwitch" role="switch" aria-checked="true" aria-labelledby="secLbl">
+              <span class="switch-knob"></span>
+            </button>
+          </div>
+
+          <div class="field">
+            <span class="field-label" id="srcLbl">Compare with</span>
+            <div class="segmented" role="group" aria-labelledby="srcLbl">
+              <button class="seg-btn">Comparison field</button>
+              <button class="seg-btn is-active">Custom formula</button>
+            </div>
+          </div>
+
+          <div class="field field-formula">
+            <label for="formula">Custom formula (N-1)</label>
+            <textarea id="formula" rows="3" spellcheck="false">SUM([non_quality_cost_n_1])</textarea>
+            <div class="chips">
+              <span class="chips-label">Insert field</span>
+              <button class="chip">[non_quality_cost_n_1]</button>
+              <button class="chip">[non_quality_cost_n_0]</button>
+              <button class="chip">[qty_returned_1stlife_n_1]</button>
+              <button class="chip">[qty_returned_1stlife_n_0]</button>
+            </div>
+            <div class="validation is-ok">
+              <span>✓</span> Valid formula · 1 field referenced
+            </div>
+          </div>
+
+          <div class="grid-2" style="max-width:520px">
+            <div class="field">
+              <label for="calc">Calculation</label>
+              <select id="calc">
+                <option selected>Absolute variance</option>
+                <option>% variance</option>
+                <option>Ratio N / N-1</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="secDec">Decimals</label>
+              <input id="secDec" type="number" min="0" max="3" value="1">
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label" id="dirLbl">How to read the variation</span>
+            <div class="dir-group" role="group" aria-labelledby="dirLbl">
+              <button class="dir-card is-active" aria-pressed="true">
+                <span class="dir-card-title">An increase is bad</span>
+                <span class="dir-card-sub">Costs, returns, defects</span>
+                <span class="dir-card-badges">
+                  <span class="badge badge-bad">▲ +12 %</span>
+                  <span class="badge badge-good">▼ −8 %</span>
+                </span>
+              </button>
+              <button class="dir-card" aria-pressed="false">
+                <span class="dir-card-title">An increase is good</span>
+                <span class="dir-card-sub">Sales, satisfaction, availability</span>
+                <span class="dir-card-badges">
+                  <span class="badge badge-good">▲ +12 %</span>
+                  <span class="badge badge-bad">▼ −8 %</span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conditional formatting (collapsible, closed by default) -->
+      <section class="card">
+        <button class="card-toggle" aria-expanded="false" data-target="condBody">
+          <span class="card-toggle-title">Conditional formatting</span>
+          <span class="card-toggle-summary">No rules
+            <svg class="chev is-closed" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#545D69" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"/></svg>
+          </span>
+        </button>
+        <div class="card-body" id="condBody" hidden>
+          <div class="empty-rule">
+            <span>Color the value or the row when a condition is met.</span>
+            <button class="btn btn-outline">Add rule</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="danger-row">
+        <button class="btn btn-danger">
+          <span class="icon-trash" aria-hidden="true"></span> Remove this column
+        </button>
+      </div>
+    </main>
+
+    <!-- ============ RIGHT: live preview ============ -->
+    <aside class="preview" aria-label="Live preview">
+      <div class="preview-head">
+        <h2>Live preview</h2>
+        <p>Sample rows. Applied to the viz on Save.</p>
+      </div>
+
+      <div class="preview-table">
+        <div class="preview-col-header">Non-quality cost</div>
+
+        <div class="preview-row">
+          <div class="preview-row-inner">
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:100%"></div></div>
+            <span class="preview-val">643,8 K€</span>
+            <span class="badge badge-bad">▲ +138,1 K€</span>
+          </div>
+        </div>
+        <div class="preview-row">
+          <div class="preview-row-inner">
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:70%"></div></div>
+            <span class="preview-val">450,0 K€</span>
+            <span class="badge badge-good">▼ −15,5 K€</span>
+          </div>
+        </div>
+        <div class="preview-row">
+          <div class="preview-row-inner">
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:43%"></div></div>
+            <span class="preview-val">277,3 K€</span>
+            <span class="badge badge-good">▼ −30,8 K€</span>
+          </div>
+        </div>
+        <div class="preview-row">
+          <div class="preview-row-inner">
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:28%"></div></div>
+            <span class="preview-val">183,1 K€</span>
+            <span class="badge badge-bad">▲ +12,1 K€</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="preview-note">Values sit in a fixed right-aligned column so they line up across rows.</p>
+    </aside>
+
+  </div>
+</div>
+
+<script src="config-panel.js"></script>
+</body>
+</html>

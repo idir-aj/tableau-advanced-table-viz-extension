@@ -1,7 +1,6 @@
 import { HierarchyExpandTo, TableColumnConfig, TableRowData } from '../data/mockData';
 import { renderBarCell } from './barRenderer';
 import { renderSparklineCell } from './sparklineRenderer';
-import { exportToExcel } from '../utils/exportExcel';
 import { findMatchingConditionRule } from '../utils/conditionalFormatting';
 import { formatSecondaryMetricLabel, getSecondaryMetricTone } from '../utils/secondaryMetric';
 
@@ -24,6 +23,9 @@ type ColumnSortState = {
 
 interface TableRenderOptions {
   onColumnsReordered?: (columns: TableColumnConfig[]) => void;
+  openColumnFilterIds?: Set<string>;
+  onOpenColumnFilterIdsChange?: (openColumnFilterIds: Set<string>) => void;
+  onExportDataChange?: (rows: TableRowData[], columns: TableColumnConfig[]) => void;
   columnWidths?: Record<string, number>;
   onColumnWidthsChange?: (columnWidths: Record<string, number>) => void;
   onExpandedNodeIdsChange?: (expandedNodeIds: Set<string>) => void;
@@ -104,6 +106,27 @@ function formatBoundValue(value: number): string {
   }
 
   return Number.isInteger(value) ? String(value) : String(value);
+}
+
+function formatFilterBound(column: TableColumnConfig, value: number): string {
+  if (column.type === 'bar') {
+    return formatNumericValueForTextColumn(value, {
+      decimals: column.decimals,
+      formatStyle: column.formatStyle,
+      currency: column.currency,
+      scale: column.scale
+    });
+  }
+  if (column.type === 'text') {
+    return formatNumericValueForTextColumn(value, {
+      decimals: column.decimals,
+      formatStyle: column.formatStyle,
+      currency: column.currency,
+      scale: column.scale,
+      suffix: column.suffix
+    });
+  }
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value);
 }
 
 function formatSparklineTooltipNumber(value: number | undefined): string {
@@ -1142,41 +1165,13 @@ export function renderTable(
   container.innerHTML = '';
 
   if (columns.length === 0) {
+    options?.onExportDataChange?.([], []);
     const emptyState = document.createElement('div');
     emptyState.className = 'table-empty-state';
     emptyState.innerText = 'No columns configured. Add a column in the configuration panel.';
     container.appendChild(emptyState);
     return;
   }
-
-  // ---------------------------------------------------------------------------
-  // Toolbar with Export Button
-  // ---------------------------------------------------------------------------
-  const toolbar = document.createElement('div');
-  toolbar.className = 'table-toolbar';
-  toolbar.style.display = 'flex';
-  toolbar.style.justifyContent = 'flex-start'; // Aligne à gauche pour ne pas chevaucher la config à droite
-  toolbar.style.marginBottom = '12px';
-  toolbar.style.position = 'relative';
-  toolbar.style.zIndex = '10'; // Garantit que le bouton est cliquable au-dessus des autres éléments
-
-  const exportBtn = document.createElement('button');
-  exportBtn.type = 'button';
-  exportBtn.className = 'icon-only-btn';
-  exportBtn.innerText = '⬇';
-  exportBtn.setAttribute('aria-label', 'Export CSV');
-  exportBtn.title = 'Export CSV';
-
-  exportBtn.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    // Export des lignes visibles/filtrées
-    exportToExcel(visibleRows, columns, `Export_${new Date().toISOString().slice(0, 10)}.csv`);
-  });
-
-  toolbar.appendChild(exportBtn);
-  container.appendChild(toolbar);
 
   const grid = document.createElement('div');
   grid.className = 'table-grid';
@@ -1215,6 +1210,7 @@ export function renderTable(
   };
 
   const visibleRows = hasHierarchy ? filteredData.filter((row) => isHierarchyRowVisible(row)) : filteredData;
+  options?.onExportDataChange?.(visibleRows, columns);
   const MAX_RENDERED_ROWS = 12000;
   const isCapped = visibleRows.length > MAX_RENDERED_ROWS;
   const rowsToRender = isCapped ? visibleRows.slice(0, MAX_RENDERED_ROWS) : visibleRows;
@@ -1242,8 +1238,7 @@ export function renderTable(
       const fromIndex = sourceIndex as number;
       const toIndex = targetIndex as number;
       const nextColumns = [...columns];
-      const [moved] = nextColumns.splice(fromIndex, 1);
-      nextColumns.splice(toIndex, 0, moved);
+      [nextColumns[fromIndex], nextColumns[toIndex]] = [nextColumns[toIndex], nextColumns[fromIndex]];
       options?.onColumnsReordered?.(nextColumns);
     }
 
@@ -1259,24 +1254,30 @@ export function renderTable(
     headerCell.style.position = 'relative';
     const headerContent = document.createElement('div');
     headerContent.className = 'header-cell-content';
+    const dragHandle = document.createElement('button');
+    dragHandle.type = 'button';
+    dragHandle.className = 'column-drag-handle';
+    dragHandle.draggable = true;
+    dragHandle.innerText = '⠿';
+    dragHandle.setAttribute('aria-label', `Reorder ${column.header}`);
+    dragHandle.title = `Reorder ${column.header}`;
+    headerContent.appendChild(dragHandle);
+    const sortButton = document.createElement('button');
+    sortButton.type = 'button';
+    sortButton.className = 'column-name-button';
     const headerLabel = document.createElement('span');
     headerLabel.className = 'header-label';
     headerLabel.innerText = column.header;
-    headerContent.appendChild(headerLabel);
+    sortButton.appendChild(headerLabel);
 
     if (isColumnSortable(column)) {
-      const sortButton = document.createElement('button');
-      sortButton.type = 'button';
-      sortButton.className = 'sort-button';
-
       const isSortedColumn = sortState?.columnId === column.id;
-      if (isSortedColumn && sortState?.direction === 'desc') {
-        sortButton.innerText = '↓';
-      } else if (isSortedColumn && sortState?.direction === 'asc') {
-        sortButton.innerText = '↑';
-      } else {
-        sortButton.innerText = '↕';
-      }
+      const sortIcon = document.createElement('span');
+      sortIcon.className = `sort-icon${isSortedColumn ? ' is-active' : ''}${isSortedColumn && sortState?.direction === 'desc' ? ' is-desc' : ''}`;
+      sortIcon.setAttribute('aria-hidden', 'true');
+      sortIcon.innerText = '↓';
+      sortButton.appendChild(sortIcon);
+      sortButton.setAttribute('aria-label', `Sort ${column.header}${isSortedColumn ? `, currently ${sortState?.direction === 'asc' ? 'ascending' : 'descending'}` : ''}`);
 
       sortButton.addEventListener('mousedown', (event) => {
         event.preventDefault();
@@ -1291,9 +1292,9 @@ export function renderTable(
         let nextSort: ColumnSortState | null;
 
         if (currentSort?.columnId !== column.id) {
-          nextSort = { columnId: column.id, direction: 'desc' };
-        } else if (currentSort.direction === 'desc') {
           nextSort = { columnId: column.id, direction: 'asc' };
+        } else if (currentSort.direction === 'asc') {
+          nextSort = { columnId: column.id, direction: 'desc' };
         } else {
           nextSort = null;
         }
@@ -1301,7 +1302,46 @@ export function renderTable(
         options?.onSortStateChange?.(nextSort);
       });
 
-      headerContent.appendChild(sortButton);
+    } else {
+      sortButton.disabled = true;
+    }
+    headerContent.appendChild(sortButton);
+
+    const currentFilter = (options?.columnFilters ?? {})[column.id] ?? {};
+    const filterKind = getColumnFilterKind(column, data);
+    if (filterKind !== 'none') {
+      const openFilterIds = options?.openColumnFilterIds ?? new Set<string>();
+      const filterButton = document.createElement('button');
+      filterButton.type = 'button';
+      const isFilterOpen = openFilterIds.has(column.id);
+      const isFilterActive = filterKind === 'text' ? Boolean(currentFilter.text?.trim())
+        : currentFilter.min !== undefined || currentFilter.max !== undefined;
+      filterButton.className = `column-filter-toggle${isFilterOpen || isFilterActive ? ' is-active' : ''}`;
+      const filterIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      filterIcon.setAttribute('aria-hidden', 'true');
+      filterIcon.setAttribute('viewBox', '0 0 14 14');
+      filterIcon.setAttribute('width', '13');
+      filterIcon.setAttribute('height', '13');
+      filterIcon.setAttribute('fill', 'none');
+      filterIcon.setAttribute('stroke', 'currentColor');
+      filterIcon.setAttribute('stroke-width', '1.4');
+      filterIcon.setAttribute('stroke-linecap', 'round');
+      filterIcon.setAttribute('stroke-linejoin', 'round');
+      const filterPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      filterPath.setAttribute('d', 'M1.5 2h11l-4 5v4l-3 1.5V7z');
+      filterIcon.appendChild(filterPath);
+      filterButton.appendChild(filterIcon);
+      filterButton.setAttribute('aria-label', `${isFilterOpen ? 'Hide' : 'Show'} filter for ${column.header}`);
+      filterButton.setAttribute('aria-pressed', String(isFilterOpen));
+      filterButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const nextOpenIds = new Set(options?.openColumnFilterIds ?? []);
+        if (nextOpenIds.has(column.id)) nextOpenIds.delete(column.id);
+        else nextOpenIds.add(column.id);
+        options?.onOpenColumnFilterIdsChange?.(nextOpenIds);
+      });
+      headerContent.appendChild(filterButton);
     }
 
     headerCell.appendChild(headerContent);
@@ -1357,20 +1397,7 @@ export function renderTable(
       editor.select();
     };
 
-    headerCell.addEventListener('mousedown', (event) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.classList.contains('column-resize-handle')) {
-        return;
-      }
-
-      if (target?.classList.contains('header-edit-input')) {
-        return;
-      }
-
-      if (event.detail > 1) {
-        return;
-      }
-
+    dragHandle.addEventListener('mousedown', (event) => {
       if (event.button !== 0) {
         return;
       }
@@ -1414,7 +1441,7 @@ export function renderTable(
       beginHeaderRename();
     });
 
-    if (index < columns.length - 1) {
+    {
       const resizeHandle = document.createElement('span');
       resizeHandle.className = 'column-resize-handle';
       resizeHandle.setAttribute('role', 'separator');
@@ -1465,10 +1492,13 @@ export function renderTable(
   const filterRow = document.createElement('div');
   filterRow.className = 'table-row filters';
   filterRow.style.gridTemplateColumns = templateColumns;
+  const openColumnFilterIds = options?.openColumnFilterIds ?? new Set<string>();
+  filterRow.hidden = openColumnFilterIds.size === 0;
 
   columns.forEach((column) => {
     const filterCell = document.createElement('div');
     filterCell.className = 'cell filter-cell';
+    filterCell.classList.toggle('is-closed', !openColumnFilterIds.has(column.id));
     const currentFilter = columnFilters[column.id] ?? {};
     const kind = getColumnFilterKind(column, filteredData);
 
@@ -1510,12 +1540,12 @@ export function renderTable(
       minInput.type = 'number';
       minInput.step = 'any';
       minInput.className = 'filter-bound-input';
-      minInput.setAttribute('aria-label', 'Minimum value');
+      minInput.setAttribute('aria-label', `Minimum ${column.header}`);
       const maxInput = document.createElement('input');
       maxInput.type = 'number';
       maxInput.step = 'any';
       maxInput.className = 'filter-bound-input';
-      maxInput.setAttribute('aria-label', 'Maximum value');
+      maxInput.setAttribute('aria-label', `Maximum ${column.header}`);
       labelRow.appendChild(minInput);
       labelRow.appendChild(maxInput);
 
@@ -1526,14 +1556,24 @@ export function renderTable(
       const minThumb = document.createElement('button');
       minThumb.type = 'button';
       minThumb.className = 'filter-range-thumb';
-      minThumb.setAttribute('aria-label', 'Minimum filter value');
+      minThumb.setAttribute('role', 'slider');
+      minThumb.tabIndex = 0;
+      minThumb.setAttribute('aria-label', `Minimum ${column.header}`);
       const maxThumb = document.createElement('button');
       maxThumb.type = 'button';
       maxThumb.className = 'filter-range-thumb';
-      maxThumb.setAttribute('aria-label', 'Maximum filter value');
+      maxThumb.setAttribute('role', 'slider');
+      maxThumb.tabIndex = 0;
+      maxThumb.setAttribute('aria-label', `Maximum ${column.header}`);
       sliderTrack.appendChild(sliderFill);
       sliderTrack.appendChild(minThumb);
       sliderTrack.appendChild(maxThumb);
+
+      const formattedLabels = document.createElement('div');
+      formattedLabels.className = 'filter-range-labels';
+      const formattedMin = document.createElement('span');
+      const formattedMax = document.createElement('span');
+      formattedLabels.append(formattedMin, formattedMax);
 
       let selectedMin = currentMin;
       let selectedMax = currentMax;
@@ -1555,10 +1595,18 @@ export function renderTable(
 
         minThumb.style.left = `${minPercent}%`;
         maxThumb.style.left = `${maxPercent}%`;
+        minThumb.setAttribute('aria-valuemin', String(safeMin));
+        minThumb.setAttribute('aria-valuemax', String(selectedMax));
+        minThumb.setAttribute('aria-valuenow', String(selectedMin));
+        maxThumb.setAttribute('aria-valuemin', String(selectedMin));
+        maxThumb.setAttribute('aria-valuemax', String(safeMax));
+        maxThumb.setAttribute('aria-valuenow', String(selectedMax));
         sliderFill.style.left = `${minPercent}%`;
         sliderFill.style.width = `${Math.max(0, maxPercent - minPercent)}%`;
         minInput.value = formatBoundValue(selectedMin);
         maxInput.value = formatBoundValue(selectedMax);
+        formattedMin.innerText = formatFilterBound(column, selectedMin);
+        formattedMax.innerText = formatFilterBound(column, selectedMax);
       };
 
       const publishFilter = (): void => {
@@ -1618,6 +1666,32 @@ export function renderTable(
       attachDrag('min', minThumb);
       attachDrag('max', maxThumb);
 
+      const moveThumbByKeyboard = (thumb: 'min' | 'max', event: KeyboardEvent): void => {
+        const step = (rangeSpan || 1) / 100;
+        const delta = event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -step
+          : event.key === 'ArrowRight' || event.key === 'ArrowUp' ? step
+            : event.key === 'PageDown' ? -step * 10
+              : event.key === 'PageUp' ? step * 10
+                : 0;
+        if (event.key === 'Home') {
+          if (thumb === 'min') selectedMin = safeMin;
+          else selectedMax = selectedMin;
+        } else if (event.key === 'End') {
+          if (thumb === 'min') selectedMin = selectedMax;
+          else selectedMax = safeMax;
+        } else if (delta !== 0) {
+          if (thumb === 'min') selectedMin = Math.max(safeMin, Math.min(selectedMax, selectedMin + delta));
+          else selectedMax = Math.min(safeMax, Math.max(selectedMin, selectedMax + delta));
+        } else {
+          return;
+        }
+        event.preventDefault();
+        renderSliderState();
+        publishFilter();
+      };
+      minThumb.addEventListener('keydown', (event) => moveThumbByKeyboard('min', event));
+      maxThumb.addEventListener('keydown', (event) => moveThumbByKeyboard('max', event));
+
       const applyInputs = (origin: 'min' | 'max'): void => {
         const rawMin = Number.parseFloat(minInput.value);
         const rawMax = Number.parseFloat(maxInput.value);
@@ -1668,6 +1742,7 @@ export function renderTable(
 
       filterCell.appendChild(labelRow);
       filterCell.appendChild(sliderTrack);
+      filterCell.appendChild(formattedLabels);
     } else {
       const empty = document.createElement('span');
       empty.className = 'filter-empty';
